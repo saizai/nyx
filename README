@@ -1,7 +1,7 @@
-arm (anonymizing relay monitor) - Terminal status monitor for Tor relays.
+nyx, f/k/a arm (anonymizing relay monitor) - Terminal status monitor for Tor relays.
 Developed by Damian Johnson (www.atagar.com - atagar@torproject.org)
 All code under the GPL v3 (http://www.gnu.org/licenses/gpl.html)
-Project page: www.atagar.com/arm
+Project page: https://nyx.torproject.org
 
 Description:
 Command line application for monitoring Tor, providing real time status
@@ -16,11 +16,11 @@ The project was originally proposed in 2008 by Jacob and Karsten:
   http://archives.seul.org/or/dev/Jan-2008/msg00005.html
 
 An interview by Brenno Winter discussing the project is available at:
-  http://www.atagar.com/arm/HFM_INT_0001.mp3
+  https://nyx.torproject.org/HFM_INT_0001.mp3
 
 Requirements:
 Python 2.5
-TorCtl (this is included with arm)
+TorCtl (this is included with nyx)
 Tor is running with an available control port. This means either...
   ... starting Tor with '--controlport <PORT>'
   ... or including 'ControlPort <PORT>' in your torrc
@@ -31,15 +31,15 @@ This can be done either with a cookie or password:
     contents of the control_auth_cookie file. To set this up...
     - add "CookieAuthentication 1" to your torrc
     - either restart Tor or run "pkill -sighup tor"
-    - this method of authentication is automatically handled by arm, so you
-      can still start arm as you normally would
+    - this method of authentication is automatically handled by nyx, so you
+      can still start nyx as you normally would
   
   * Password Authentication - Attaching to the control port requires a
     password. To set this up...
     - run "tor --hash-password <your password>"
     - add "HashedControlPassword <hashed password>" to your torrc
     - either restart Tor or run "pkill -sighup tor"
-    - when starting up arm will prompt you for this password
+    - when starting up nyx will prompt you for this password
 
 For full functionality this also needs:
 - To be ran with the same user as tor to avoid permission issues with
