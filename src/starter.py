@@ -31,15 +31,15 @@ import util.uiTools
 import TorCtl.TorCtl
 import TorCtl.TorUtil
 
-LOG_DUMP_PATH = os.path.expanduser("~/.arm/log")
-DEFAULT_CONFIG = os.path.expanduser("~/.arm/armrc")
+LOG_DUMP_PATH = os.path.expanduser("~/.nyx/log")
+DEFAULT_CONFIG = os.path.expanduser("~/.nyx/config")
 CONFIG = {"startup.controlPassword": None,
           "startup.interface.ipAddress": "127.0.0.1",
           "startup.interface.port": 9051,
           "startup.interface.socket": "/var/run/tor/control",
           "startup.blindModeEnabled": False,
           "startup.events": "N3",
-          "startup.dataDirectory": "~/.arm",
+          "startup.dataDirectory": "~/.nyx",
           "wizard.default": {},
           "features.allowDetachedStartup": True,
           "features.config.descriptions.enabled": True,
@@ -57,7 +57,7 @@ CONFIG = {"startup.controlPassword": None,
 OPT = "gpi:s:c:dbe:vh"
 OPT_EXPANDED = ["gui", "prompt", "interface=", "socket=", "config=", "debug", "blind", "event=", "version", "help"]
 
-HELP_MSG = """Usage arm [OPTION]
+HELP_MSG = """Usage nyx [OPTION]
 Terminal status monitor for Tor relays.
 
   -g, --gui                       launch the Gtk+ interface
@@ -67,7 +67,7 @@ Terminal status monitor for Tor relays.
                                     SOCKET_PATH defaults to: %s
   -c, --config CONFIG_PATH        loaded configuration options, CONFIG_PATH
                                     defaults to: %s
-  -d, --debug                     writes all arm logs to %s
+  -d, --debug                     writes all nyx logs to %s
   -b, --blind                     disable connection lookups
   -e, --event EVENT_FLAGS         event types in message log  (default: %s)
 %s
@@ -75,8 +75,8 @@ Terminal status monitor for Tor relays.
   -h, --help                      presents this help
 
 Example:
-arm -b -i 1643          hide connection data, attaching to control port 1643
-arm -e we -c /tmp/cfg   use this configuration file with 'WARN'/'ERR' events
+nyx -b -i 1643          hide connection data, attaching to control port 1643
+nyx -e we -c /tmp/cfg   use this configuration file with 'WARN'/'ERR' events
 """ % (CONFIG["startup.interface.ipAddress"], CONFIG["startup.interface.port"], CONFIG["startup.interface.socket"], DEFAULT_CONFIG, LOG_DUMP_PATH, CONFIG["startup.events"], cli.logPanel.EVENT_LISTING)
 
 # filename used for cached tor config descriptions
@@ -94,14 +94,14 @@ DESC_SAVE_FAILED_MSG = "Unable to save configuration descriptions (%s)"
 
 NO_INTERNAL_CFG_MSG = "Failed to load the parsing configuration. This will be problematic for a few things like torrc validation and log duplication detection (%s)"
 STANDARD_CFG_LOAD_FAILED_MSG = "Failed to load configuration (using defaults): \"%s\""
-STANDARD_CFG_NOT_FOUND_MSG = "No armrc loaded, using defaults. You can customize arm by placing a configuration file at '%s' (see the armrc.sample for its options)."
+STANDARD_CFG_NOT_FOUND_MSG = "No nyxconfig loaded, using defaults. You can customize nyx by placing a configuration file at '%s' (see the config.sample for its options)."
 
 # torrc entries that are scrubbed when dumping
 PRIVATE_TORRC_ENTRIES = ["HashedControlPassword", "Bridge", "HiddenServiceDir"]
 
-# notices given if the user is running arm or tor as root
+# notices given if the user is running nyx or tor as root
 TOR_ROOT_NOTICE = "Tor is currently running with root permissions. This is not a good idea and shouldn't be necessary. See the 'User UID' option from Tor's man page for an easy method of reducing its permissions after startup."
-ARM_ROOT_NOTICE = "Arm is currently running with root permissions. This is not a good idea, and will still work perfectly well if it's run with the same user as Tor (ie, starting with \"sudo -u %s arm\")."
+NYX_ROOT_NOTICE = "nyx is currently running with root permissions. This is not a good idea, and will still work perfectly well if it's run with the same user as Tor (ie, starting with \"sudo -u %s nyx\")."
 
 # Makes subcommands provide us with English results (this is important so we
 # can properly parse it).
@@ -115,7 +115,7 @@ def allowConnectionTypes():
   (allowPortConnection, allowSocketConnection, allowDetachedStart)
   """
   
-  confKeys = util.conf.getConfig("arm").getKeys()
+  confKeys = util.conf.getConfig("nyx").getKeys()
   
   isPortArgPresent = "startup.interface.ipAddress" in confKeys or "startup.interface.port" in confKeys
   isSocketArgPresent = "startup.interface.socket" in confKeys
@@ -123,7 +123,7 @@ def allowConnectionTypes():
   skipPortConnection = isSocketArgPresent and not isPortArgPresent
   skipSocketConnection = isPortArgPresent and not isSocketArgPresent
   
-  # Flag to indicate if we'll start arm reguardless of being unable to connect
+  # Flag to indicate if we'll start nyx reguardless of being unable to connect
   # to Tor. This is the default behavior if the user hasn't provided a port or
   # socket to connect to, so we can show the relay setup wizard.
   
@@ -191,7 +191,7 @@ def _loadConfigurationDescriptions(pathPrefix):
           msg = DESC_SAVE_FAILED_MSG % util.sysTools.getFileErrorMsg(exc)
           util.log.log(CONFIG["log.configDescriptions.persistance.saveFailed"], msg)
     
-    # finally fall back to the cached descriptors provided with arm (this is
+    # finally fall back to the cached descriptors provided with nyx (this is
     # often the case for tbb and manual builds)
     if not isConfigDescriptionsLoaded:
       try:
@@ -310,29 +310,29 @@ def _torCtlConnect(controlAddr="127.0.0.1", controlPort=9051, passphrase=None, i
 
 def _dumpConfig():
   """
-  Dumps the current arm and tor configurations at the DEBUG runlevel. This
+  Dumps the current nyx and tor configurations at the DEBUG runlevel. This
   attempts to scrub private information, but naturally the user should double
   check that I didn't miss anything.
   """
   
-  config = util.conf.getConfig("arm")
+  config = util.conf.getConfig("nyx")
   conn = util.torTools.getConn()
   
-  # dumps arm's configuration
-  armConfigEntry = ""
-  armConfigKeys = list(config.getKeys())
-  armConfigKeys.sort()
+  # dumps nyx's configuration
+  nyxConfigEntry = ""
+  nyxConfigKeys = list(config.getKeys())
+  nyxConfigKeys.sort()
   
-  for configKey in armConfigKeys:
+  for configKey in nyxConfigKeys:
     # Skips some config entries that are loaded by default. This fetches
     # the config values directly to avoid misflagging them as being used by
-    # arm.
+    # nyx.
     
     if not configKey.startswith("config.summary.") and not configKey.startswith("torrc.") and not configKey.startswith("msg."):
-      armConfigEntry += "%s -> %s\n" % (configKey, config.contents[configKey])
+      nyxConfigEntry += "%s -> %s\n" % (configKey, config.contents[configKey])
   
-  if armConfigEntry: armConfigEntry = "Arm Configuration:\n%s" % armConfigEntry
-  else: armConfigEntry = "Arm Configuration: None"
+  if nyxConfigEntry: nyxConfigEntry = "nyx Configuration:\n%s" % nyxConfigEntry
+  else: nyxConfigEntry = "nyx Configuration: None"
   
   # dumps tor's version and configuration
   torConfigEntry = "Tor (%s) Configuration:\n" % conn.getInfo("version")
@@ -347,7 +347,7 @@ def _dumpConfig():
     else:
       torConfigEntry += "%s %s\n" % (key, value)
   
-  util.log.log(util.log.DEBUG, armConfigEntry.strip())
+  util.log.log(util.log.DEBUG, nyxConfigEntry.strip())
   util.log.log(util.log.DEBUG, torConfigEntry.strip())
 
 if __name__ == '__main__':
@@ -394,7 +394,7 @@ if __name__ == '__main__':
     elif opt in ("-e", "--event"):
       param["startup.events"] = arg                   # set event flags
     elif opt in ("-v", "--version"):
-      print "arm version %s (released %s)\n" % (version.VERSION, version.LAST_MODIFIED)
+      print "nyx version %s (released %s)\n" % (version.VERSION, version.LAST_MODIFIED)
       sys.exit()
     elif opt in ("-h", "--help"):
       print HELP_MSG
@@ -406,7 +406,7 @@ if __name__ == '__main__':
       
       currentTime = time.localtime()
       timeLabel = time.strftime("%H:%M:%S %m/%d/%Y (%Z)", currentTime)
-      initMsg = "Arm %s Debug Dump, %s" % (version.VERSION, timeLabel)
+      initMsg = "nyx %s Debug Dump, %s" % (version.VERSION, timeLabel)
       pythonVersionLabel = "Python Version: %s" % (".".join([str(arg) for arg in sys.version_info[:3]]))
       osLabel = "Platform: %s (%s)" % (platform.system(), " ".join(platform.dist()))
       
@@ -415,7 +415,7 @@ if __name__ == '__main__':
     except (OSError, IOError), exc:
       print "Unable to write to debug log file: %s" % util.sysTools.getFileErrorMsg(exc)
   
-  config = util.conf.getConfig("arm")
+  config = util.conf.getConfig("nyx")
   
   # attempts to fetch attributes for parsing tor's logs, configuration, etc
   pathPrefix = os.path.dirname(sys.argv[0])
@@ -428,7 +428,7 @@ if __name__ == '__main__':
     msg = NO_INTERNAL_CFG_MSG % util.sysTools.getFileErrorMsg(exc)
     util.log.log(util.log.WARN, msg)
   
-  # loads user's personal armrc if available
+  # loads user's personal nyxconfig if available
   if os.path.exists(configPath):
     try:
       config.load(configPath)
@@ -436,14 +436,14 @@ if __name__ == '__main__':
       msg = STANDARD_CFG_LOAD_FAILED_MSG % util.sysTools.getFileErrorMsg(exc)
       util.log.log(util.log.WARN, msg)
   else:
-    # no armrc found, falling back to the defaults in the source
+    # no nyxconfig found, falling back to the defaults in the source
     msg = STANDARD_CFG_NOT_FOUND_MSG % configPath
     util.log.log(util.log.NOTICE, msg)
   
-  # prevent arm from starting without a tor instance if...
+  # prevent nyx from starting without a tor instance if...
   # - we're launching a prompt
   # - tor is running (otherwise it would be kinda confusing, "tor is running
-  #   but why does arm say that it's shut down?")
+  #   but why does nyx say that it's shut down?")
   
   if launchPrompt or util.torTools.isTorRunning():
     config.set("features.allowDetachedStartup", "false")
@@ -538,29 +538,29 @@ if __name__ == '__main__':
     if torUser == "root":
       util.log.log(util.log.NOTICE, TOR_ROOT_NOTICE)
   
-  # Give a notice if arm is running with root. Querying connections usually
+  # Give a notice if nyx is running with root. Querying connections usually
   # requires us to have the same permissions as tor so if tor is running as
   # root then drop this notice (they're already then being warned about tor
   # being root, anyway).
   
   if torUser != "root" and os.getuid() == 0:
     torUserLabel = torUser if torUser else "<tor user>"
-    util.log.log(util.log.NOTICE, ARM_ROOT_NOTICE % torUserLabel)
+    util.log.log(util.log.NOTICE, NYX_ROOT_NOTICE % torUserLabel)
   
   # fetches descriptions for tor's configuration options
   _loadConfigurationDescriptions(pathPrefix)
   
-  # dump tor and arm configuration when in debug mode
+  # dump tor and nyx configuration when in debug mode
   if isDebugMode:
     util.log.log(CONFIG["log.savingDebugLog"], "Saving a debug log to '%s' (please check it for sensitive information before sharing)" % LOG_DUMP_PATH)
     _dumpConfig()
   
   # Attempts to rename our process from "python setup.py <input args>" to
-  # "arm <input args>"
+  # "nyx <input args>"
   
   try:
     from util import procName
-    procName.renameProcess("arm\0%s" % "\0".join(sys.argv[1:]))
+    procName.renameProcess("nyx\0%s" % "\0".join(sys.argv[1:]))
   except: pass
   
   # If using our LANG variable for rendering multi-byte characters lets us
