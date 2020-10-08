@@ -29,13 +29,14 @@ def getResources(dst, sourceDir):
 # Use 'tor-arm' instead of 'arm' in the path for the sample armrc if we're
 # building for debian.
 
+# FIXME
 isDebInstall = False
 for arg in sys.argv:
   if "tor-arm" in arg or "release_deb" in arg:
     isDebInstall = True
     break
 
-docPath = "/usr/share/doc/%s" % ("tor-arm" if isDebInstall else "arm")
+docPath = "/usr/share/doc/%s" % ("tor-arm" if isDebInstall else "nyx")
 
 # Allow the docPath to be overridden via a '--docPath' argument. This is to
 # support custom documentation locations on Gentoo, as discussed in:
@@ -61,7 +62,7 @@ except ValueError: pass # --docPath flag not found
 #   install-purelib=/usr/share
 # which would mean a bit more unnecessary clutter.
 
-manFilename = "src/resoureces/arm.1"
+manFilename = "src/resoureces/nyx.1"
 if "install" in sys.argv:
   sys.argv += ["--install-purelib", "/usr/share"]
   
@@ -70,13 +71,13 @@ if "install" in sys.argv:
   # page instead.
   
   try:
-    manInputFile = open('src/resources/arm.1', 'r')
+    manInputFile = open('src/resources/nyx.1', 'r')
     manContents = manInputFile.read()
     manInputFile.close()
     
     # temporary destination for the man page guarenteed to be unoccupied (to
     # avoid conflicting with files that are already there)
-    tmpFilename = tempfile.mktemp("/arm.1.gz")
+    tmpFilename = tempfile.mktemp("/nyx.1.gz")
     
     # make dir if the path doesn't already exist
     baseDir = os.path.dirname(tmpFilename)
@@ -95,36 +96,36 @@ if "install" in sys.argv:
 # When installing we include a bundled copy of TorCtl. However, when creating
 # a deb we have a dependency on the python-torctl package instead:
 # http://packages.debian.org/unstable/main/python-torctl
-installPackages = ['arm', 'arm.cli', 'arm.cli.graphing', 'arm.cli.connections', 'arm.cli.menu', 'arm.gui', 'arm.gui.connections', 'arm.gui.graphing', 'arm.util', 'arm.TorCtl']
-if isDebInstall: installPackages.remove('arm.TorCtl')
-if INCLUDE_CAGRAPH: installPackages += ['arm.cagraph', 'arm.cagraph.axis', 'arm.cagraph.series']
+installPackages = ['nyx', 'nyx.cli', 'nyx.cli.graphing', 'nyx.cli.connections', 'nyx.cli.menu', 'nyx.gui', 'nyx.gui.connections', 'nyx.gui.graphing', 'nyx.util', 'nyx.TorCtl']
+if isDebInstall: installPackages.remove('nyx.TorCtl')
+if INCLUDE_CAGRAPH: installPackages += ['nyx.cagraph', 'nyx.cagraph.axis', 'nyx.cagraph.series']
 
-setup(name='arm',
+setup(name='nyx',
       version=VERSION,
       description='Terminal tor status monitor',
       license='GPL v3',
       author='Damian Johnson',
       author_email='atagar@torproject.org',
-      url='http://www.atagar.com/arm/',
+      url='https://nyx.torproject.org/',
       packages=installPackages,
-      package_dir={'arm': 'src'},
-      data_files=[("/usr/bin", ["arm"]),
+      package_dir={'nyx': 'src'},
+      data_files=[("/usr/bin", ["nyx"]),
                   ("/usr/share/man/man1", [manFilename]),
-                  (docPath, ["armrc.sample"]),
-                  ("/usr/share/arm/gui", ["src/gui/arm.xml"]),
-                  ("/usr/share/arm", ["src/settings.cfg", "src/uninstall"])] + 
-                  getResources("/usr/share/arm", "resources"),
+                  (docPath, ["config.sample"]),
+                  ("/usr/share/nyx/gui", ["src/gui/nyx.xml"]),
+                  ("/usr/share/nyx", ["src/settings.cfg", "src/uninstall"])] + 
+                  getResources("/usr/share/nyx", "resources"),
      )
 
 # Cleans up the temporary compressed man page.
-if manFilename != 'src/resoureces/arm.1' and os.path.isfile(manFilename):
+if manFilename != 'src/resoureces/nyx.1' and os.path.isfile(manFilename):
   if "-q" not in sys.argv: print "Removing %s" % manFilename
   os.remove(manFilename)
 
 # Removes the egg_info file. Apparently it is not optional during setup
 # (hardcoded in distutils/command/install.py), nor are there any arguments to
 # bypass its creation. The deb build removes this as part of its rules script.
-eggPath = '/usr/share/arm-%s.egg-info' % VERSION
+eggPath = '/usr/share/nyx-%s.egg-info' % VERSION
 
 if not isDebInstall and os.path.isfile(eggPath):
   if "-q" not in sys.argv: print "Removing %s" % eggPath
