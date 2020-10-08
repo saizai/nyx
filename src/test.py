@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
 """
-Handler for arm tests and demos.
+Handler for nyx tests and demos.
 """
 
 import time
 from util import connections, torTools, uiTools
 
-MENU = """Arm Test Options:
+MENU = """nyx Test Options:
   1. Resolver Performance Test
   2. Resolver Dump
   3. Glyph Demo
