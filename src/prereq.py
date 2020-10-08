@@ -50,7 +50,7 @@ def promptTorCtlInstall():
   False otherwise (if it was either declined or failed to be fetched).
   """
   
-  userInput = raw_input("Arm requires TorCtl to run, but it's unavailable. Would you like to install it? (y/n): ")
+  userInput = raw_input("nyx requires TorCtl to run, but it's unavailable. Would you like to install it? (y/n): ")
   
   # if user says no then terminate
   if not userInput.lower() in ("y", "yes"): return False
@@ -74,7 +74,7 @@ def promptCagraphInstall():
   False otherwise (if it was either declined or failed to be fetched).
   """
   
-  userInput = raw_input("Arm requires cagraph to run, but it's unavailable. Would you like to install it? (y/n): ")
+  userInput = raw_input("nyx requires cagraph to run, but it's unavailable. Would you like to install it? (y/n): ")
   
   # if user says no then terminate
   if not userInput.lower() in ("y", "yes"): return False
@@ -131,7 +131,7 @@ def fetchLibrary(url, sig):
 
 def installTorCtl():
   """
-  Checks out the current git head release for TorCtl and bundles it with arm.
+  Checks out the current git head release for TorCtl and bundles it with nyx.
   This raises an IOError if unsuccessful.
   """
   
@@ -183,17 +183,17 @@ def installCagraph():
 
 def allPrereq():
   """
-  Requrements for both the cli and gui versions of arm.
+  Requrements for both the cli and gui versions of nyx.
   """
   
   majorVersion = sys.version_info[0]
   minorVersion = sys.version_info[1]
   
   if majorVersion > 2:
-    print("arm isn't compatible beyond the python 2.x series\n")
+    print("nyx isn't compatible beyond the python 2.x series\n")
     sys.exit(1)
   elif majorVersion < 2 or minorVersion < 5:
-    print("arm requires python version 2.5 or greater\n")
+    print("nyx requires python version 2.5 or greater\n")
     sys.exit(1)
   
   if not isTorCtlAvailable():
@@ -202,7 +202,7 @@ def allPrereq():
 
 def cliPrereq():
   """
-  Requirements for the cli arm interface.
+  Requirements for the cli nyx interface.
   """
   
   allPrereq()
@@ -210,12 +210,12 @@ def cliPrereq():
   try:
     import curses
   except ImportError:
-    print("arm requires curses - try installing the python-curses package\n")
+    print("nyx requires curses - try installing the python-curses package\n")
     sys.exit(1)
 
 def guiPrereq():
   """
-  Requirements for the gui arm interface.
+  Requirements for the gui nyx interface.
   """
   
   allPrereq()
@@ -223,7 +223,7 @@ def guiPrereq():
   try:
     import gtk
   except ImportError:
-    print("arm requires gtk - try installing the python-gtk2 package\n")
+    print("nyx requires gtk - try installing the python-gtk2 package\n")
     sys.exit(1)
   
   if not isCagraphAvailable():
