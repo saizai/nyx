@@ -1,5 +1,5 @@
 """
-Provides arm's version and release date.
+Provides nyx's version and release date.
 """
 
 VERSION = '1.4.5.0'
