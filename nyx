@@ -1,0 +1,13 @@
+#!/bin/sh
+if [ "$0" = /usr/bin/nyx ]; then
+  nyx_base=/usr/share/nyx/
+else
+  nyx_base=$( dirname "$0" )/src/
+fi
+
+python "${nyx_base}prereq.py" $*
+
+if [ $? = 0 ]; then
+  exec python -W ignore::DeprecationWarning "${nyx_base}starter.py" $*
+fi
+
