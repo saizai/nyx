@@ -5,7 +5,7 @@ startup.interface.port 9051
 startup.interface.socket /var/run/tor/control
 startup.blindModeEnabled false
 startup.events N3
-startup.dataDirectory ~/.arm
+startup.dataDirectory ~/.nyx
 
 # Seconds between querying information
 queries.resourceUsage.rate 5
@@ -37,7 +37,7 @@ features.acsSupport true
 # none, red, green, yellow, blue, cyan, magenta, black, white
 features.colorOverride none
 
-# If arm is attached to an arm started tor instance when it shuts down then
+# If nyx is attached to an nyx started tor instance when it shuts down then
 # offers to shut down tor too if true, otherwise skips this prompt.
 features.offerTorShutdownOnQuit false
 
@@ -51,7 +51,7 @@ features.torrc.validate true
 # resources (log, state, etc) should have a prefix in their paths.
 features.pathPrefix
 
-# If set, arm appends any log messages it reports while running to the given
+# If set, nyx appends any log messages it reports while running to the given
 # log file. This does not take filters into account or include prepopulated
 # events.
 features.logFile 
